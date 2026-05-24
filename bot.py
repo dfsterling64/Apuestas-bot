@@ -55,7 +55,7 @@ Los últimos 10 min pesan MÁS que el acumulado.
 
 **Regla "Gol del Dominador":**
 - Si el ganador supera al perdedor en presión + ataques + ExG simultáneamente PERO el ganador tiene ExG propio ≥ 0.5 → ENTRADA
-- Esta regla NO aplica cuando Marseille está activa y el perdedor no la cumple
+- EXCEPCIÓN CRÍTICA: Esta regla NO aplica cuando Marseille está activa y el perdedor NO cumple Marseille. En ese caso es DESCARTE aunque el ganador tenga ExG ≥ 0.5. Primero verifica si aplica Marseille, si aplica y el perdedor no la cumple → DESCARTE directo, no revisar Gol del Dominador.
 
 **Descartes inmediatos:**
 - Ganador supera al perdedor en presión + ataques + ExG simultáneamente Y ExG ganador < 0.5
