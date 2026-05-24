@@ -48,9 +48,10 @@ Los últimos 10 min pesan MÁS que el acumulado.
 - Marcador máximo 0-1 o 1-0
 
 **Regla Marseille — Si marcador 0-2 o mayor DESDE el HT:**
-- Opción A: presión perdedor ≥ 70% Y ExG ≥ 0.4
-- Opción B: presión perdedor ≥ 60% Y ExG ≥ 0.5 Y ataques superiores
+- Opción A: presión perdedor ≥ 70% Y ExG PROPIO del perdedor ≥ 0.4 (valor propio, NO la diferencia entre equipos)
+- Opción B: presión perdedor ≥ 60% Y ExG PROPIO del perdedor ≥ 0.5 (valor propio, NO la diferencia) Y ataques superiores al rival
 - Si el gol que hace el 0-2 fue en segunda mitad (HT era 0-1) → NO aplica Marseille, usar Condición A/B normal
+- CRÍTICO: ExG en Marseille siempre es el valor propio del perdedor, nunca la diferencia
 
 **Regla "Gol del Dominador":**
 - Si el ganador supera al perdedor en presión + ataques + ExG simultáneamente PERO el ganador tiene ExG propio ≥ 0.5 → ENTRADA
