@@ -19,13 +19,25 @@ OBJETIVO: Determinar si habrá GOL después del minuto 60. No importa quién met
 
 ---
 
+## LECTURA DE ÍCONOS — CRÍTICO
+
+La app muestra estadísticas con íconos. Es OBLIGATORIO identificarlos correctamente:
+
+- 🛡️ ESCUDO = **Presión %** (nunca lo leas como ExG)
+- ⚽ BALÓN = **ExG** (Expected Goals — este es el único ExG válido)
+- El ícono de bandera/sprint NO es ExG
+
+Si confundes el escudo con el ExG, el análisis es inválido. Ante la duda, indica qué ícono leíste para cada dato.
+
+---
+
 ## ESTRUCTURA DE LECTURA
 
-ARRIBA (acumulado): tiros, ataques, corners, tarjetas, presión %
+ARRIBA (acumulado): tiros, ataques, corners, tarjetas, presión % (🛡️ escudo)
 ABAJO en "Últimos 10'" (los que usas para decidir):
-- Presión %
+- Presión % → ícono 🛡️ escudo
 - Ataques
-- ExG (ícono balón ⚽ — NO el de bandera)
+- ExG → ícono ⚽ balón (NO el escudo, NO el de bandera)
 - ExC
 
 Los últimos 10 min pesan MÁS que el acumulado.
@@ -52,7 +64,7 @@ Los últimos 10 min pesan MÁS que el acumulado.
 - Opción B: presión perdedor ≥ 60% Y ExG PROPIO del perdedor ≥ 0.5 (valor propio, NO diferencia) Y ataques superiores al rival
 - Opción C (NUEVA V3.2): presión perdedor ≥ 50% Y ataques perdedor superiores al rival Y ExG PROPIO del perdedor ≥ 0.6
 - Si el gol que hace el 0-2 fue en segunda mitad (HT era 0-1) → NO aplica Marseille, usar Condición A/B normal
-- CRÍTICO: ExG en Marseille siempre es el valor propio del perdedor, nunca la diferencia
+- CRÍTICO: ExG en Marseille siempre es el valor propio del perdedor (ícono ⚽ balón), nunca la diferencia
 
 **Regla "Gol del Dominador" (V3.2 actualizada):**
 - Si el ganador supera al perdedor en presión + ataques + ExG simultáneamente:
@@ -99,9 +111,9 @@ Si hay 4 o más goles al minuto 60 Y ambos equipos tienen al menos 1 tiro a puer
 Marcador: X-X | HT: X-X | Min: 60
 
 **Datos últimos 10 min:**
-- Presión: X% — X%
+- Presión (🛡️): X% — X%
 - Ataques: X — X
-- ExG: X — X
+- ExG (⚽): X — X
 - ExC: X — X
 
 **Análisis:**
@@ -148,7 +160,7 @@ async def analizar_imagen(update: Update, context: ContextTypes.DEFAULT_TYPE):
                         },
                         {
                             "type": "text",
-                            "text": "Analiza este pantallazo y da tu decisión según el sistema V3.2."
+                            "text": "Analiza este pantallazo y da tu decisión según el sistema V3.2. Recuerda: el ícono 🛡️ escudo es Presión %, el ícono ⚽ balón es ExG. No los confundas."
                         }
                     ]
                 }
