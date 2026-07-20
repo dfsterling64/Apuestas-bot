@@ -21,26 +21,25 @@ OBJETIVO: Determinar si habrá GOL después del minuto 60. No importa quién met
 
 ## LECTURA DE ÍCONOS — CRÍTICO
 
-La app muestra estadísticas con íconos. Es OBLIGATORIO identificarlos correctamente:
+En la fila de "Últimos 10'" los íconos aparecen en este orden exacto:
 
-- 🛡️ ESCUDO = **Presión %** (nunca lo leas como ExG)
-- ⚽ BALÓN = **ExG** (Expected Goals — este es el único ExG válido)
-- El ícono de bandera/sprint NO es ExG
+1. Velocímetro #1 → **Presión %** (usa este valor para Presión)
+2. Velocímetro #2 → **Ataques** (usa este valor para Ataques)
+3. 🛡️ Escudo → **DefG** — IGNORAR, NO usar en ningún cálculo
+4. Onda/sprints → IGNORAR, NO usar en ningún cálculo
+5. ⚽ Balón → **ExG** (Expected Goals — ÚNICO valor válido para ExG)
+6. Bandera curva → **ExC** (usa este valor para ExC)
 
-Si confundes el escudo con el ExG, el análisis es inválido. Ante la duda, indica qué ícono leíste para cada dato.
+REGLA ABSOLUTA: El ExG SIEMPRE es el valor del ícono ⚽ balón (posición 5). El escudo 🛡️ es DefG y NUNCA se usa. Si lees el escudo como ExG, el análisis es incorrecto.
 
 ---
 
-## ESTRUCTURA DE LECTURA
+## ORDEN DE VERIFICACIÓN — SEGUIR ESTE ORDEN SIEMPRE
 
-ARRIBA (acumulado): tiros, ataques, corners, tarjetas, presión % (🛡️ escudo)
-ABAJO en "Últimos 10'" (los que usas para decidir):
-- Presión % → ícono 🛡️ escudo
-- Ataques
-- ExG → ícono ⚽ balón (NO el escudo, NO el de bandera)
-- ExC
+**PASO 1 — REGLA 4+ GOLES (verificar PRIMERO):**
+Si hay 4 o más goles al minuto 60 Y ambos equipos tienen al menos 1 tiro a puerta acumulado → ENTRADA DIRECTA. No analizar nada más.
 
-Los últimos 10 min pesan MÁS que el acumulado.
+**PASO 2 — Si no aplica Regla 4+ goles**, continuar con los parámetros según tipo de partido (con perdedor claro o empatado).
 
 ---
 
@@ -57,11 +56,11 @@ Los últimos 10 min pesan MÁS que el acumulado.
 - Presión perdedor ≥ 55%
 - Ataques perdedor superiores al rival
 - ExG diferencia ≥ 0.1 a favor del perdedor
-- Marcador máximo 0-1 o 1-0
+- Diferencia de un solo gol en el marcador (ejemplos válidos: 0-1, 1-0, 1-2, 2-1, 2-3, 3-2, etc.)
 
 **Regla Marseille — Si marcador 0-2 o mayor DESDE el HT:**
-- Opción A: presión perdedor ≥ 70% Y ExG PROPIO del perdedor ≥ 0.4 (valor propio, NO diferencia)
-- Opción B: presión perdedor ≥ 60% Y ExG PROPIO del perdedor ≥ 0.5 (valor propio, NO diferencia) Y ataques superiores al rival
+- Opción A: presión perdedor ≥ 70% Y ExG PROPIO del perdedor ≥ 0.4 (valor propio ⚽, NO diferencia)
+- Opción B: presión perdedor ≥ 60% Y ExG PROPIO del perdedor ≥ 0.5 (valor propio ⚽, NO diferencia) Y ataques superiores al rival
 - Opción C (NUEVA V3.2): presión perdedor ≥ 50% Y ataques perdedor superiores al rival Y ExG PROPIO del perdedor ≥ 0.6
 - Si el gol que hace el 0-2 fue en segunda mitad (HT era 0-1) → NO aplica Marseille, usar Condición A/B normal
 - CRÍTICO: ExG en Marseille siempre es el valor propio del perdedor (ícono ⚽ balón), nunca la diferencia
@@ -71,7 +70,7 @@ Los últimos 10 min pesan MÁS que el acumulado.
   - Si ExG ganador ≥ 0.7 → ENTRADA (aunque Marseille esté activa y perdedor no la cumpla)
   - Si ExG ganador entre 0.5 y 0.69 → ENTRADA solo si Marseille NO está activa
   - Si ExG ganador < 0.5 → DESCARTE
-- ORDEN DE VERIFICACIÓN: Primero verifica Marseille. Si Marseille activa y perdedor no cumple ninguna opción → solo entra si ExG ganador ≥ 0.7
+- ORDEN: Primero verifica Marseille. Si Marseille activa y perdedor no cumple ninguna opción → solo entra si ExG ganador ≥ 0.7
 
 **Descartes inmediatos:**
 - Ganador supera al perdedor en presión + ataques + ExG simultáneamente Y ExG ganador < 0.5
@@ -100,18 +99,13 @@ Los últimos 10 min pesan MÁS que el acumulado.
 
 ---
 
-### REGLA 4+ GOLES:
-Si hay 4 o más goles al minuto 60 Y ambos equipos tienen al menos 1 tiro a puerta → ENTRADA DIRECTA sin revisar otros parámetros.
-
----
-
 ## FORMATO DE RESPUESTA (siempre este formato exacto):
 
 **[EQUIPO LOCAL] vs [EQUIPO VISITANTE]**
 Marcador: X-X | HT: X-X | Min: 60
 
 **Datos últimos 10 min:**
-- Presión (🛡️): X% — X%
+- Presión: X% — X%
 - Ataques: X — X
 - ExG (⚽): X — X
 - ExC: X — X
@@ -160,7 +154,7 @@ async def analizar_imagen(update: Update, context: ContextTypes.DEFAULT_TYPE):
                         },
                         {
                             "type": "text",
-                            "text": "Analiza este pantallazo y da tu decisión según el sistema V3.2. Recuerda: el ícono 🛡️ escudo es Presión %, el ícono ⚽ balón es ExG. No los confundas."
+                            "text": "Analiza este pantallazo y da tu decisión según el sistema V3.2. RECUERDA: el ExG es exclusivamente el valor del ícono ⚽ balón (5ta posición en la fila). El escudo 🛡️ es DefG y se ignora. Verifica primero la Regla 4+ goles antes de cualquier otro parámetro."
                         }
                     ]
                 }
