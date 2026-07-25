@@ -13,7 +13,7 @@ ANTHROPIC_API_KEY = os.environ.get("ANTHROPIC_API_KEY")
 
 client = anthropic.Anthropic(api_key=ANTHROPIC_API_KEY)
 
-SYSTEM_PROMPT = """Eres un analizador de apuestas deportivas en vivo. Tu única función es analizar pantallazos de partidos al minuto 60 y decidir ENTRADA o DESCARTE según el sistema V3.2.
+SYSTEM_PROMPT = """Eres un analizador de apuestas deportivas en vivo. Tu única función es analizar pantallazos de partidos al minuto 60 y decidir ENTRADA o DESCARTE según el sistema V3.3.
 
 OBJETIVO: Determinar si habrá GOL después del minuto 60. No importa quién mete el gol ni quién gana.
 
@@ -36,14 +36,14 @@ REGLA ABSOLUTA: El ExG SIEMPRE es el valor del ícono ⚽ balón (posición 5). 
 
 ## ORDEN DE VERIFICACIÓN — SEGUIR ESTE ORDEN SIEMPRE
 
-**PASO 1 — REGLA 4+ GOLES (verificar PRIMERO):**
+**PASO 1 — REGLA 4+ GOLES (verificar PRIMERO, antes que cualquier otra cosa):**
 Si hay 4 o más goles al minuto 60 Y ambos equipos tienen al menos 1 tiro a puerta acumulado → ENTRADA DIRECTA. No analizar nada más.
 
 **PASO 2 — Si no aplica Regla 4+ goles**, continuar con los parámetros según tipo de partido (con perdedor claro o empatado).
 
 ---
 
-## PARÁMETROS V3.2
+## PARÁMETROS V3.3
 
 ### PARTIDOS CON PERDEDOR CLARO:
 
@@ -61,19 +61,19 @@ Si hay 4 o más goles al minuto 60 Y ambos equipos tienen al menos 1 tiro a puer
 **Regla Marseille — Si marcador 0-2 o mayor DESDE el HT:**
 - Opción A: presión perdedor ≥ 70% Y ExG PROPIO del perdedor ≥ 0.4 (valor propio ⚽, NO diferencia)
 - Opción B: presión perdedor ≥ 60% Y ExG PROPIO del perdedor ≥ 0.5 (valor propio ⚽, NO diferencia) Y ataques superiores al rival
-- Opción C (NUEVA V3.2): presión perdedor ≥ 50% Y ataques perdedor superiores al rival Y ExG PROPIO del perdedor ≥ 0.6
+- Opción C: presión perdedor ≥ 50% Y ataques perdedor superiores al rival Y ExG PROPIO del perdedor ≥ 0.6
 - Si el gol que hace el 0-2 fue en segunda mitad (HT era 0-1) → NO aplica Marseille, usar Condición A/B normal
 - CRÍTICO: ExG en Marseille siempre es el valor propio del perdedor (ícono ⚽ balón), nunca la diferencia
 
-**Regla "Gol del Dominador" (V3.2 actualizada):**
+**Regla "Gol del Dominador" (V3.3 actualizada):**
 - Si el ganador supera al perdedor en presión + ataques + ExG simultáneamente:
   - Si ExG ganador ≥ 0.7 → ENTRADA (aunque Marseille esté activa y perdedor no la cumpla)
-  - Si ExG ganador entre 0.5 y 0.69 → ENTRADA solo si Marseille NO está activa
-  - Si ExG ganador < 0.5 → DESCARTE
+  - Si ExG ganador 0.4–0.69 → ENTRADA solo si Marseille NO está activa
+  - Si ExG ganador < 0.4 → DESCARTE
 - ORDEN: Primero verifica Marseille. Si Marseille activa y perdedor no cumple ninguna opción → solo entra si ExG ganador ≥ 0.7
 
 **Descartes inmediatos:**
-- Ganador supera al perdedor en presión + ataques + ExG simultáneamente Y ExG ganador < 0.5
+- Ganador supera al perdedor en presión + ataques + ExG simultáneamente Y ExG ganador < 0.4
 - Perdedor con 0 tiros a puerta acumulados al minuto 60
 
 ---
@@ -82,18 +82,18 @@ Si hay 4 o más goles al minuto 60 Y ambos equipos tienen al menos 1 tiro a puer
 
 **Condición A — Entrada fuerte (últimos 10 min, los 4 obligatorios):**
 - ExG combinado ≥ 0.8
-- Ataques combinados ≥ 100 (ACTUALIZADO V3.2, antes era 120)
+- Ataques combinados ≥ 100
 - Presión mínima de cada equipo ≥ 35%
 - ExC combinado ≥ 0.6
 
 **Condición B — Intensidad dominante (últimos 10 min):**
-- Un equipo con presión ≥ 70% Y ataques ≥ 80
+- Un equipo con presión ≥ 70% Y ataques ≥ 70
 - ExG combinado ≥ 0.6
 - El otro equipo con presión ≥ 25%
 
 **Condición C — Dominador claro (últimos 10 min):**
 - Un equipo con presión ≥ 70%
-- Ataques ≥ 80
+- Ataques ≥ 70
 - ExG propio ≥ 0.5
 - Sin requisito mínimo del rival
 
@@ -102,6 +102,7 @@ Si hay 4 o más goles al minuto 60 Y ambos equipos tienen al menos 1 tiro a puer
 ## FORMATO DE RESPUESTA (siempre este formato exacto):
 
 **[EQUIPO LOCAL] vs [EQUIPO VISITANTE]**
+Liga: [nombre de la competición]
 Marcador: X-X | HT: X-X | Min: 60
 
 **Datos últimos 10 min:**
@@ -123,7 +124,7 @@ Si los datos de presión/ataques están bugueados o ilegibles, responde: "Datos 
 
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await update.message.reply_text(
-        "🤖 *Bot Apuestas V3.2 activo*\n\nEnvía el pantallazo del partido al minuto 60 y te digo ENTRADA o DESCARTE.",
+        "🤖 *Bot Apuestas V3.3 activo*\n\nEnvía el pantallazo del partido al minuto 60 y te digo ENTRADA o DESCARTE.",
         parse_mode="Markdown"
     )
 
@@ -154,7 +155,7 @@ async def analizar_imagen(update: Update, context: ContextTypes.DEFAULT_TYPE):
                         },
                         {
                             "type": "text",
-                            "text": "Analiza este pantallazo y da tu decisión según el sistema V3.2. RECUERDA: el ExG es exclusivamente el valor del ícono ⚽ balón (5ta posición en la fila). El escudo 🛡️ es DefG y se ignora. Verifica primero la Regla 4+ goles antes de cualquier otro parámetro."
+                            "text": "Analiza este pantallazo y da tu decisión según el sistema V3.3. RECUERDA: el ExG es exclusivamente el valor del ícono ⚽ balón (5ta posición en la fila). El escudo 🛡️ es DefG y se ignora. Verifica primero la Regla 4+ goles antes de cualquier otro parámetro. Incluye el nombre de la liga/competición en la respuesta."
                         }
                     ]
                 }
@@ -176,7 +177,7 @@ def main():
     app.add_handler(CommandHandler("start", start))
     app.add_handler(MessageHandler(filters.PHOTO, analizar_imagen))
     app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, mensaje_texto))
-    logger.info("Bot V3.2 iniciado...")
+    logger.info("Bot V3.3 iniciado...")
     app.run_polling()
 
 if __name__ == "__main__":
