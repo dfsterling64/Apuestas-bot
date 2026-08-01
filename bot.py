@@ -99,7 +99,9 @@ Si hay 4 o más goles al minuto 60 Y ambos equipos tienen al menos 1 tiro a puer
 
 ---
 
-## FORMATO DE RESPUESTA (siempre este formato exacto):
+## FORMATO DE RESPUESTA
+
+Primero el análisis completo en este formato exacto:
 
 **[EQUIPO LOCAL] vs [EQUIPO VISITANTE]**
 Liga: [nombre de la competición]
@@ -115,6 +117,22 @@ Marcador: X-X | HT: X-X | Min: 60
 [Explicar qué condición aplica y por qué, paso a paso]
 
 **✅ ENTRADA** o **❌ DESCARTE**
+
+---
+
+Luego, SOLO si la decisión es ENTRADA, añade al final el bloque de señal exactamente así (separado por ---SEÑAL---):
+
+---SEÑAL---
+🔥⚽ FUTBOL FLY LAY UNDER ⚽🔥
+━━━━━━━━━━━━━━━
+🏆 [LIGA/COMPETICIÓN]
+⚔️ [EQUIPO LOCAL] vs [EQUIPO VISITANTE]
+🕐 Min 60 | [MARCADOR]
+━━━━━━━━━━━━━━━
+🎯 GOL +60
+✅ ENTRAR AHORA
+━━━━━━━━━━━━━━━
+        🅵🅻🆈
 
 ---
 
@@ -155,7 +173,7 @@ async def analizar_imagen(update: Update, context: ContextTypes.DEFAULT_TYPE):
                         },
                         {
                             "type": "text",
-                            "text": "Analiza este pantallazo y da tu decisión según el sistema V3.3. RECUERDA: el ExG es exclusivamente el valor del ícono ⚽ balón (5ta posición en la fila). El escudo 🛡️ es DefG y se ignora. Verifica primero la Regla 4+ goles antes de cualquier otro parámetro. Incluye el nombre de la liga/competición en la respuesta."
+                            "text": "Analiza este pantallazo y da tu decisión según el sistema V3.3. RECUERDA: el ExG es exclusivamente el valor del ícono ⚽ balón (5ta posición en la fila). El escudo 🛡️ es DefG y se ignora. Verifica primero la Regla 4+ goles antes de cualquier otro parámetro. Incluye el nombre de la liga. Si la decisión es ENTRADA, incluye el bloque ---SEÑAL--- al final."
                         }
                     ]
                 }
@@ -163,7 +181,15 @@ async def analizar_imagen(update: Update, context: ContextTypes.DEFAULT_TYPE):
         )
 
         resultado = response.content[0].text
-        await update.message.reply_text(resultado, parse_mode="Markdown")
+
+        if "---SEÑAL---" in resultado:
+            partes = resultado.split("---SEÑAL---")
+            analisis = partes[0].strip()
+            senal = partes[1].strip()
+            await update.message.reply_text(analisis, parse_mode="Markdown")
+            await update.message.reply_text(senal)
+        else:
+            await update.message.reply_text(resultado, parse_mode="Markdown")
 
     except Exception as e:
         logger.error(f"Error: {e}")
